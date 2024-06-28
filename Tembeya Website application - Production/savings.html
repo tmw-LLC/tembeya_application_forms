@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Savings Account</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <!-- Include Select2 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <!-- Include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .form-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: auto;
+        }
+        .logo img {
+            display: block;
+            margin: 0 auto 20px;
+            max-width: 300px; /* Increased size */
+            width: 100%; /* Ensure responsiveness */
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select, button, textarea, .back-btn {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        .spacer {
+            margin-top: 10px;
+        }
+        button {
+            background-color: #32A643; /* Updated color */
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #32A643; /* Updated hover color to match button color */
+        }
+        .back-btn {
+            background-color: #A3BF65; /* Updated color */
+            color: white;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 16px;
+            padding: 10px;
+        }
+        .back-btn:hover {
+            background-color: #8CC43C; /* Updated hover color to match button color */
+        }
+        .status-icon {
+            margin-left: 5px;
+            font-size: 20px;
+        }
+        .active {
+            color: green;
+        }
+        .pending {
+            color: orange;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <div class="logo">
+        <img src="tembeya.jpg" alt="Tembeya Logo">
+    </div>
+    <h2>Savings Application Form</h2>
+    <form id="clientForm">
+        <label for="clientId">Client ID *</label>
+        <div style="display: flex; align-items: center;">
+            <input type="text" id="clientId" name="clientId" style="flex: 1;" placeholder="Enter your client ID eg 00000000x" required>
+            <span id="statusIcon" class="status-icon"></span> <!-- Status icon -->
+        </div>
+
+        <div class="spacer"></div>
+
+        <label for="savingsProducts">Available Savings Products</label>
+        <textarea id="savingsProducts" name="savingsProducts" rows="10" placeholder="Savings products available at Tembeya will be listed here..." readonly></textarea>
+
+        <div class="spacer"></div>
+
+        <label for="selectedProduct">Select Savings Product you wish to apply for</label>
+        <select id="selectedProduct" name="selectedProduct" class="product-select" required disabled>
+            <option value="" disabled selected>Select a savings product</option>
+        </select>
+
+        <div class="spacer"></div>
+
+        <button type="submit">Submit</button>
+
+        <a href="index.html" class="back-btn">Back to Main Menu</a>
+    </form>
+
+    <p style="text-align: center; font-size: 13px; color: #666;">
+        Please make sure that your client account is activated before you apply.
+    </p>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.product-select').select2();
+
+        $('#clientId').on('blur', function() {
+            var clientId = $(this).val().replace(/^0+/, ''); // Remove leading zeros
+            $(this).val(clientId); // Update the input field with the modified clientId
+
+            // Check if clientId is filled to enable the savings product selection
+            if (clientId.trim() !== '') {
+                $('#selectedProduct').prop('disabled', false);
+                fetchSavingsProducts();
+            } else {
+                $('#selectedProduct').prop('disabled', true).val('');
+                $('#savingsProducts').val('');
+            }
+        });
+
+        $('#clientForm').on('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            var formData = {
+                clientId: $('#clientId').val().replace(/^0+/, ''), // Remove leading zeros
+                productId: $('#selectedProduct').val()
+            };
+
+            // Ensure formData is valid before proceeding
+            if (formData.clientId && formData.productId) {
+                var currentDate = new Date();
+                var formattedDate = currentDate.getDate() + ' ' + monthNames[currentDate.getMonth()] + ' ' +
+                    currentDate.getFullYear();
+
+                var payload = {
+                    clientId: formData.clientId,
+                    productId: formData.productId,
+                    locale: 'en',
+                    dateFormat: 'dd MMMM yyyy',
+                    submittedOnDate: formattedDate
+                };
+
+                // Example AJAX call to submit form data
+                $.ajax({
+                    url: 'http://18.133.21.164:8084/fineract-provider/api/v1/savingsaccounts',
+                    type: 'POST',
+                    headers: {
+                        'Authorization': 'Basic ' + btoa('mifos:password'),
+                        'Content-Type': 'application/json'
+                    },
+                    data: JSON.stringify(payload),
+                    success: function(response) {
+                        console.log('POST request successful');
+                        var successMessage = 'Your savings account application was successful!';
+                        alert(successMessage); // Example success message
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error executing POST request:', error);
+                        var errorMessage = 'An error occurred while processing your request.';
+                        alert(errorMessage); // Example error message
+                    }
+                });
+            } else {
+                console.error('Form data is invalid:', formData);
+                alert('Please fill in all required fields.'); // Example alert for invalid form data
+            }
+        });
+
+        function fetchSavingsProducts() {
+            var tenantIdentifier = 'default'; // Hardcoded tenant identifier based on your previous setup
+            var url = 'http://18.133.21.164:8084/fineract-provider/api/v1/savingsproducts?tenantIdentifier=' + tenantIdentifier + '&pretty=true';
+            var authToken = btoa('mifos:password');
+
+            $.ajax({
+                type: "GET",
+                url: url,
+                headers: {
+                    'Authorization': 'Basic ' + authToken
+                },
+                success: function(response) {
+                    var productsText = response.map(product => {
+                        return `
+ID: ${product.id},
+Name: ${product.name},
+Currency: ${product.currency.code},
+Min Required Opening Balance: ${product.minRequiredOpeningBalance},
+Interest Rate: ${product.nominalAnnualInterestRate}%
+Interest Compounding Period: ${product.interestCompoundingPeriodType.value},
+Interest Posting Period: ${product.interestPostingPeriodType.value},
+Min Required Balance for Interest: ${product.minRequiredBalance}`;
+                    }).join('\n\n'); // Add extra space between each product
+
+                    document.getElementById('savingsProducts').value = productsText;
+
+                    var productSelect = $('#selectedProduct');
+                    productSelect.empty(); // Clear existing options
+                    productSelect.append('<option value="" disabled selected>Select a savings product</option>');
+                    response.forEach(product => {
+                        productSelect.append(new Option(product.name, product.id));
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching savings products:', error);
+                    // Handle error as needed
+                }
+            });
+        }
+
+        var monthNames = [
+            "January", "February", "March",
+            "April", "May", "June", "July",
+            "August", "September", "October",
+            "November", "December"
+        ];
+    });
+</script>
+</body>
+</html>

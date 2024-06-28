@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Application</title>
+    
+    <!-- Add favicon -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    
+    <!-- Include Select2 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <!-- Include flatpickr CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .form-container {
+            background: #fff;
+            padding: 30px; /* Increased padding for better spacing */
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 75%; /* 75% of the viewport width */
+            max-width: 500px; /* Maximum width to maintain readability */
+        }
+        .logo img {
+            display: block;
+            margin: 0 auto 20px;
+            max-width: 50%; /* Reduced logo size by 50% */
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 26px;
+            color: #595959;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #32A643;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 12px 20px;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+            display: block;
+            margin: 10px auto 0; /* Center the button and add space above */
+            text-align: center;
+        }
+        .button-back {
+            background-color: #A3BF65;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 12px 20px;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+            display: block;
+            margin: 10px auto; /* Center the button and add space */
+            text-align: center;
+        }
+        button:hover, .button-back:hover {
+            background-color: #8CC43C; /* Updated hover color */
+        }
+        .spacer {
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <div class="logo">
+        <img src="Tembeya.jpg" alt="Tembeya Investments and Financial Services Logo">
+    </div>
+    <h2>Client Application Form</h2>
+    <form id="clientForm">
+        <label for="firstName">First Name *</label>
+        <input type="text" id="firstName" name="firstName" placeholder="Enter your first name" required>
+
+        <label for="middleName">Middle Name</label>
+        <input type="text" id="middleName" name="middleName" placeholder="Enter your middle name">
+
+        <label for="lastName">Last Name *</label>
+        <input type="text" id="lastName" name="lastName" placeholder="Enter your last name" required>
+
+        <label for="externalId">National ID</label>
+        <input type="text" id="externalId" name="externalId" placeholder="Enter your NIN details">
+
+        <label for="dob">Date of Birth</label>
+        <input type="text" id="dob" name="dob" placeholder="Select date of birth" required>
+
+        <label for="gender">Gender</label>
+        <select id="gender" name="gender">
+            <option value="" disabled selected>Select gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+        </select>
+
+        <label for="mobileNo">Mobile No *</label>
+        <input type="tel" id="mobileNo" name="mobileNo" placeholder="Enter your mobile number" required>
+
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" placeholder="Enter your email address">
+
+        <div class="spacer"></div>
+
+        <button type="submit">Submit</button>
+        <button type="button" class="button-back">Back to main menu</button>
+    </form>
+</div>
+
+<!-- Include jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Include Select2 JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<!-- Include flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/en.js"></script>
+<script>
+    $(document).ready(function() {
+        // Initialize flatpickr for date of birth input
+        flatpickr("#dob", {
+            dateFormat: "d F Y",
+            locale: "en"
+        });
+
+        $('#clientForm').on('submit', function(event) {
+            event.preventDefault(); // Prevent the form from submitting the traditional way
+
+            // Function to format date to 'dd MMMM yyyy'
+            function formatDateToDDMMMMYYYY(date) {
+                const options = { day: '2-digit', month: 'long', year: 'numeric' };
+                return date.toLocaleDateString('en-GB', options);
+            }
+
+            // Collect form data
+            var formData = {
+                officeId: 1,
+                firstname: $('#firstName').val(),
+                lastname: $('#lastName').val(),
+                externalId: $('#externalId').val(),
+                mobileNo: $('#mobileNo').val(),
+                legalFormId: 1,
+                dateFormat: "dd MMMM yyyy",
+                locale: "en",
+                submittedOnDate: formatDateToDDMMMMYYYY(new Date()),
+                emailAddress: $('#email').val() // Add email field to formData
+            };
+
+            // Collect and format DOB
+            var dobInput = $('#dob').val();
+            if (dobInput) {
+                var dobDate = new Date(dobInput);
+                formData.dateOfBirth = formatDateToDDMMMMYYYY(dobDate);
+            }
+
+            // Add genderId based on selected gender
+            var gender = $('#gender').val();
+            if (gender === 'Male') {
+                formData.genderId = 16;
+            } else if (gender === 'Female') {
+                formData.genderId = 15;
+            }
+
+            // Basic authentication credentials
+            var username = 'mifos';
+            var password = 'password';
+            var auth = 'Basic ' + btoa(username + ':' + password);
+
+            // Send the data via fetch to your server endpoint
+            fetch(`http://18.133.21.164:8084/fineract-provider/api/v1/clients?tenantIdentifier=default`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': auth,
+                    'Content-Type': 'application/json',
+                    'User-Agent': 'insomnia/8.3.0',
+                    'tenantIdentifier': 'default'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data) {
+                    window.location.href = 'thankyou.html';
+                } else {
+                    console.error('Error submitting form.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        // Handle back to main menu button click
+        $('.button-back').click(function() {
+            window.location.href = 'index.html';
+        });
+    });
+</script>
+</body>
+</html>

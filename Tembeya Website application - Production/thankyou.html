@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e5e5e5; /* Use the background color from the second example */
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .thank-you-container {
+            background: #fff;
+            padding: 20px 40px; /* Double the padding on right and left */
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .logo img {
+            display: block;
+            margin-bottom: 20px; /* Add space below the logo */
+            max-width: 300px; /* Double the size */
+        }
+        h2, p {
+            font-size: 24px;
+            font-weight: bold;
+            color: #595959; /* Change text color to match second example */
+            margin-bottom: 10px; /* Reduce the space between the text and SVG */
+        }
+        p#thankYouMessage {
+            margin-bottom: 20px;
+        }
+        .back-button {
+            background-color: #32A643; /* Use the button color from the second example */
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px; /* Add space above the button */
+        }
+        .back-button:hover {
+            background-color: #A3BF65; /* Darker shade for hover effect */
+        }
+
+        /* Checkmark animation styles */
+        .checkmark {
+            width: 150px;
+            margin: 0 auto;
+            padding-top: 10px; /* Reduce padding above the SVG */
+        }
+
+        .path {
+            stroke-dasharray: 750;
+            stroke-dashoffset: 0;
+            animation: dash 2s ease-in-out;
+            -webkit-animation: dash 2s ease-in-out;
+        }
+
+        .spin {
+            animation: spin 2s;
+            -webkit-animation: spin 2s;
+            transform-origin: 50% 50%;
+            -webkit-transform-origin: 50% 50%;
+        }
+
+        p {
+            font-family: sans-serif;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0 auto;
+            text-align: center;
+            animation: text .5s linear .4s;
+            -webkit-animation: text .4s linear .3s;
+        }
+
+        @-webkit-keyframes dash {
+            0% {
+                stroke-dashoffset: 750;
+            }
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        @keyframes dash {
+            0% {
+                stroke-dashoffset: 750;
+            }
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        @-webkit-keyframes spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+            }
+            100% {
+                -webkit-transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+            }
+            100% {
+                -webkit-transform: rotate(360deg);
+            }
+        }
+
+        @-webkit-keyframes text {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes text {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="thank-you-container">
+    <div class="logo">
+        <img src="Tembeya.jpg" alt="Tembeya Logo">
+    </div>
+    <h2>Thank you!</h2>
+    <p id="thankYouMessage">Your request has been submitted.</p>
+    <!-- Checkmark SVG -->
+    <div class="checkmark">
+        <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 161.2 161.2" enable-background="new 0 0 161.2 161.2" xml:space="preserve">
+            <path class="path" fill="none" stroke="#32A643" stroke-miterlimit="10" d="M425.9,52.1L425.9,52.1c-2.2-2.6-6-2.6-8.3-0.1l-42.7,46.2l-14.3-16.4
+    c-2.3-2.7-6.2-2.7-8.6-0.1c-1.9,2.1-2,5.6-0.1,7.7l17.6,20.3c0.2,0.3,0.4,0.6,0.6,0.9c1.8,2,4.4,2.5,6.6,1.4c0.7-0.3,1.4-0.8,2-1.5
+    c0.3-0.3,0.5-0.6,0.7-0.9l46.3-50.1C427.7,57.5,427.7,54.2,425.9,52.1z" />
+            <circle class="path" fill="none" stroke="#32A643" stroke-width="4" stroke-miterlimit="10" cx="80.6" cy="80.6" r="62.1" />
+            <polyline class="path" fill="none" stroke="#32A643" stroke-width="6" stroke-linecap="round" stroke-miterlimit="10" points="113,52.8 
+    74.1,108.4 48.2,86.4 " />
+
+            <circle class="spin" fill="none" stroke="#32A643" stroke-width="4" stroke-miterlimit="10" stroke-dasharray="9.163125,9.163125" cx="80.6" cy="80.6" r="55.425" />
+        </svg>
+    </div>
+    <!-- End of Checkmark SVG -->
+    <a href="index.html" class="back-button">Back to main menu</a>
+</div>
+
+</body>
+</html>

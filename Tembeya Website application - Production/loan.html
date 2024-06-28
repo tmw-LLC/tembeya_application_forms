@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Application</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <!-- Include Select2 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .form-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: auto;
+        }
+        .logo img {
+            display: block;
+            margin: 0 auto 20px;
+            max-width: 300px; /* Increased logo size */
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select, button, textarea {
+            width: 100%;
+            padding: 7px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button[type="submit"], button[type="button"] {
+            width: calc(50% - 5px); /* Make both buttons equal width */
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button[type="submit"] {
+            background-color: #32A643; /* Submit button color */
+            color: white;
+            border: none;
+        }
+        button[type="submit"]:hover {
+            background-color: #2b8e3d; /* Darker shade on hover */
+        }
+        .small-button {
+            background-color: #A3BF65; /* Back to Main Menu button color */
+            color: white;
+            border: none;
+        }
+        .small-button:hover {
+            background-color: #96aa5b; /* Darker shade on hover */
+        }
+        .spacer {
+            height: 20px;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        #products {
+            color: #595959; /* Set color for the products textarea */
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <div class="logo">
+        <img src="tembeya.jpg" alt="Tembeya Logo">
+    </div>
+    <h2>Loan Application Form</h2>
+    <form id="loanRequestForm">
+        <label for="clientId">ClientID *</label>
+        <input type="text" id="clientId" name="clientId" placeholder="Enter client ID from Tembeya" required>
+
+        <div class="button-container">
+            <label for="products">Available loan products</label>
+            <textarea id="products" name="products" rows="10" placeholder="Available Loan products will be listed here..." readonly required></textarea>
+        </div>
+
+        <label for="productId">Choose the loan product you wish to apply for *</label>
+        <select id="productId" name="productId" class="provider-select" required>
+            <!-- Options will be dynamically populated here -->
+        </select>
+
+        <div class="spacer"></div> <!-- Spacer -->
+        <label for="loanAmount">Loan Amount *</label>
+        <input type="number" id="loanAmount" name="loanAmount" value="0" required>
+
+        <label for="numberOfRepayments">Number of Repayments *</label>
+        <input type="number" id="numberOfRepayments" name="numberOfRepayments" placeholder="How long this loan should run for based on product chosen" required>
+
+        <label for="expectedDisbursementDate">Expected Disbursement Date *</label>
+        <input type="date" id="expectedDisbursementDate" name="expectedDisbursementDate" required>
+
+        <div class="spacer"></div> <!-- Spacer -->
+
+        <div class="button-container">
+            <button type="submit">Submit</button>
+            <button type="button" class="small-button" onclick="window.location.href='index.html';">Back to Main Menu</button>
+        </div>
+
+        <p style="text-align: center; font-size: 13px; color: #666;">
+            Please ensure that your clientID is activated before submitting an application.
+        </p>
+    </form>
+</div>
+
+<!-- Include jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Include Select2 JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script>
+    var productsList = []; // Global variable to store the list of products
+
+    $(document).ready(function() {
+        $('.provider-select').select2({
+            placeholder: "Select a provider",
+            allowClear: true
+        });
+
+        $('#loanRequestForm').on('submit', function(e) {
+            e.preventDefault();
+            submitLoanRequest();
+        });
+
+        $('#clientId').on('input', function() {
+            var clientId = $(this).val().trim();
+            if (clientId !== '') {
+                fetchProducts();
+            } else {
+                $('#products').val('');
+                $('#productId').empty();
+            }
+        });
+    });
+
+    function fetchProducts() {
+        var url = 'http://18.133.21.164:8084/fineract-provider/api/v1/loanproducts?tenantIdentifier=default&pretty=true';
+        var authToken = btoa('mifos:password');
+
+        console.log('Fetching products for provider: default');
+
+        $.ajax({
+            type: "GET",
+            url: url,
+            headers: {
+                'Authorization': 'Basic ' + authToken
+            },
+            success: function(response) {
+                console.log('Products fetched:', response);
+                var productsText = response.map(product => {
+                    var minPrincipalFormatted = product.minPrincipal ? numberWithCommas(product.minPrincipal) : 'N/A';
+                    var maxPrincipalFormatted = product.maxPrincipal ? numberWithCommas(product.maxPrincipal) : 'N/A';
+
+                    return `
+    ID: ${product.id},
+    Name: ${product.name},
+    Currency: ${product.currency.displayLabel},
+    Principal: ${product.principal},
+    Min Principal: ${minPrincipalFormatted},
+    Max Principal: ${maxPrincipalFormatted},
+    Max Number Of Repayments: ${product.maxNumberOfRepayments},
+    Interest Type: ${product.interestType.value},
+    Frequency: ${product.repaymentFrequencyType.value},
+    Interest Rate: ${product.interestRatePerPeriod}% per ${product.interestRateFrequencyType.value}`;
+                }).join('\n\n'); // Add extra space between each product
+
+                $('#products').val(productsText);
+
+                productsList = response; // Store products in the global variable
+                populateProductIds();
+            },
+            error: function(xhr, status, error) {
+                console.error('Error fetching products:', error);
+            }
+        });
+    }
+
+    function populateProductIds() {
+        var productIdSelect = $('#productId');
+        productIdSelect.empty();
+
+        productsList.forEach(product => {
+            var option = $('<option></option>');
+            option.val(product.id);
+            option.text(product.name);
+            productIdSelect.append(option);
+        });
+
+        $('.provider-select').trigger('change.select2');
+    }
+
+    function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function submitLoanRequest() {
+        var requestData = generateLoanRequestData();
+        if (!requestData) return;
+
+        var url = 'http://18.133.21.164:8084/fineract-provider/api/v1/loans';
+        var authToken = btoa('mifos:password');
+
+        $.ajax({
+            type: "POST",
+            url: url,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Basic ' + authToken,
+                'fineract-platform-tenantid': 'default'
+            },
+            data: JSON.stringify(requestData),
+            success: function(response) {
+                window.location.href = 'thankyou.html';
+            },
+            error: function(xhr, status, error) {
+                console.error('Error submitting loan request:', error);
+            }
+        });
+    }
+
+    function generateLoanRequestData() {
+        var clientId = $('#clientId').val();
+        var productId = $('#productId').val();
+        var loanAmount = $('#loanAmount').val();
+        var expectedDisbursementDate = $('#expectedDisbursementDate').val();
+        var numberOfRepayments = $('#numberOfRepayments').val();
+
+        var disbursementDateFormatted = formatDateToDDMMMMYYYY(expectedDisbursementDate);
+        var externalId = generateExternalId();
+
+        var selectedProduct = productsList.find(product => product.id == productId);
+
+        if (!selectedProduct) {
+            alert('Invalid Product ID');
+            return null;
+        }
+
+        var currentDate = new Date();
+        var submittedOnDate = currentDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+
+        return {
+            "clientId": clientId,
+            "externalId": externalId,
+            "dateFormat": "dd MMMM yyyy",
+            "locale": "en_GB",
+            "productId": productId,
+            "principal": loanAmount,
+            "loanTermFrequency": numberOfRepayments,
+            "loanTermFrequencyType": 1,
+            "numberOfRepayments": numberOfRepayments,
+            "repaymentEvery": selectedProduct.repaymentEvery,
+            "repaymentFrequencyType": 1,
+            "daysInYearType": 360,
+            "transactionProcessingStrategyCode": selectedProduct.transactionProcessingStrategyCode,
+            "expectedDisbursementDate": disbursementDateFormatted,
+            "interestCalculationPeriodType": selectedProduct.interestCalculationPeriodType ? 1 : 0,
+            "interestType": selectedProduct.interestType ? 1 : 0,
+            "amortizationType": selectedProduct.amortizationType ? selectedProduct.amortizationType.id : null,
+            "interestRatePerPeriod": selectedProduct.interestRatePerPeriod,
+            "loanType": "individual",
+            "submittedOnDate": submittedOnDate
+        };
+    }
+
+    function formatDateToDDMMMMYYYY(dateString) {
+        var date = new Date(dateString);
+        var options = { day: '2-digit', month: 'long', year: 'numeric' };
+        return date.toLocaleDateString('en-GB', options);
+    }
+
+    function generateExternalId() {
+        var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        var length = 18;
+        var externalId = '';
+        for (var i = 0; i < length; i++) {
+            externalId += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        return externalId;
+    }
+</script>
+</body>
+</html>
